@@ -184,9 +184,29 @@ View = f(Data)
 
 由于 `state` 可以看做整个时间轴上的无穷（具有延时）序列，并且我们在之前已经构造起了对序列进行操作的功能强大的抽象机制，所以可以利用这些序列操作函数处理 `state` 。
 
-Redux 提供了一整套机制来模拟 `reduce` 函数。
+`reduce` 是处理列表操作的一种基本抽象，其抽象出的是列表的迭代操作，`map` 和 `filter` 都可以基于 `reduce` 进行实现。Redux 借鉴了 `reduce` 的思想，是 `reduce` 在时间流处理上的一种特殊应用，下面我们来看一下，Redux 是怎样 `reduce` 一步步推导出来的。
 
-首先我们来看一下 `reduce`, 其签名为 `reduce:: ((a, b) → a) → a → [b] → a`
+首先我们来看一下 `reduce`, 其类型签名如下所示：
+
+```js
+reduce :: ((a, b) -> a) -> a -> [b] -> a
+
+reduce :: (reducer, initialValue list) -> result
+reducer :: (a, b) -> a
+initialValue :: a
+list :: [b]
+result :: a
+```
+
+上述类型签名采用的是 Hindley-Milner 类型系统，接触过 Haskell 的的同学可能对此比较熟悉。其中双冒号左边部分为函数或参数名称，右边部分为该函数或参数的类型，
+
+~~ 比如判断整数是否为偶数的函数 `isEven`， 其类型签名可以表示为： ~~
+
+```js
+isEven :: integer -> bool
+```
+
+该类型签名表示 `isEven` 是接受整数，返回值为 bool 值。通过类型签名，我们大致可以推断出函数的功能。~~
 
 `reducer` 函数来模拟 `reduce` , `reducer` 的类型签名为 `reducer:: prevState -> action -> state`，接受上一次状态 prevState，和当前时刻 dispatch 过来的 action，生成当前的状态 state。当前的 state 又可以作为下一次迭代的状态参数传入。如下图所示：
 
