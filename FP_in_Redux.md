@@ -251,7 +251,7 @@ Redux 还将所有的事件都抽象为 action，无论是用户点击、ajax请
 
 Redux 还规范了事件流 -- 单向事件流，事件 `action` 只能由 `dispatch` 函数派发，并且只能通过 `reducer` 更新系统（网页）的状态 state，然后等待下一次事件。这种单向事件流机制能够进一步简化事件管理的复杂度，并且有较好的扩展性，可以在事件流动过程中插入 middleware，比如日志记录、thunk、异步处理等，进而大大增强事件处理的灵活性。
 
-![enhance-redux](./image/enhance-redux.png)
+![enhance_redux](./image/enhance_redux.png)
 
 由于 react 组件本身也是纯函数，所以 react 对 `state` 可以进行缓存，如果 state 没有变化，就还用之前的网页，页面不需要重新渲染。（相当于页面缓存）
 
