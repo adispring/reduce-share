@@ -235,6 +235,8 @@ reduce((a, b) => a + b, 1, [2, 3, 4])
 
 介绍完 `reduce` 的基本概念，接下来展示如何由 `reduce` 一步步推导出 Redux，以及 Redux 各部分与 `reduce` 的映射关系。
 
+### Redux
+
 首先定义出 Redux 的类型签名：
 
 ```js
