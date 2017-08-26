@@ -182,9 +182,11 @@ View = f(Data)
 
 为了克服对象模型随时间变化带来状态管理困境，我们引入了 Redux，也就是上面提到的流处理模式，将页面状态 `state` 看作时间的函数 `state = state(t) -> state = stateF(t)`，因为状态的变化是离散的，所以我们也可以写成 `stateF(n)` 。通过提取 `state` 并显式地增加时间维度，我们将网页的对象模型转变为流处理模型，用 `state[]` 序列表示网页随着时间变化的状态。
 
-由于 `state` 可以看做整个时间轴上的无穷（具有延时）序列，并且我们在之前已经构造起了对序列进行操作的功能强大的抽象机制，所以可以利用这些序列操作函数处理 `state` 。
+由于 `state` 可以看做整个时间轴上的无穷（具有延时）序列，并且我们在之前已经构造起了对序列进行操作的功能强大的抽象机制，所以可以利用这些序列操作函数处理 `state` 。这里我们用到的是 `reduce` 操作。
 
-`reduce` 是处理列表操作的一种基本抽象，其抽象出的是列表的迭代操作，`map` 和 `filter` 都可以基于 `reduce` 进行实现。Redux 借鉴了 `reduce` 的思想，是 `reduce` 在时间流处理上的一种特殊应用，下面我们来看一下，Redux 是怎样 `reduce` 一步步推导出来的。
+### reduce
+
+`reduce` 是对列表的迭代操作的抽象，`map` 和 `filter` 都可以基于 `reduce` 进行实现。Redux 借鉴了 `reduce` 的思想，是 `reduce` 在时间流处理上的一种特殊应用，下面我们来看一下，Redux 是怎样 `reduce` 一步步推导出来的。
 
 首先我们来看一下 `reduce`, 其类型签名如下所示：
 
@@ -198,19 +200,35 @@ list :: [b]
 result :: a
 ```
 
-上述类型签名采用的是 Hindley-Milner 类型系统，接触过 Haskell 的的同学可能对此比较熟悉。其中双冒号左边部分为函数或参数名称，右边部分为该函数或参数的类型，
+上述类型签名采用的是 [Hindley-Milner](https://en.wikipedia.org/wiki/Hindley%E2%80%93Milner_type_system) 类型系统，接触过 Haskell 的的同学可能对此比较熟悉。其中双冒号左边部分为函数或参数名称，右边部分为该函数或参数的类型。
 
-~~ 比如判断整数是否为偶数的函数 `isEven`， 其类型签名可以表示为： ~~
+`reduce` 接受三个参数: 累积器 `reducer` ，累积初始值 `initialValue`，待累积列表 `list` 。我们迭代遍历列表的元素，利用累积器`reducer` 对累积值和列表当前元素进行累积操作，`reducer` 输出新累积值作为下次累积操作操作的输入。依次循环迭代，直到列表遍历结束，将此时的累积值作为 `reduce` 最终累积结果输出。
+
+`reduce` 代码实现如下：
 
 ```js
-isEven :: integer -> bool
+const reduce = (reducer, initialValue, list) => {
+  let acc = initialValue;
+  let val;
+  for(i = 0, i < list.length, i++) {
+    val = list[i];
+    acc = reducer(acc, val);
+  }
+  return acc;
+};
 ```
 
-该类型签名表示 `isEven` 是接受整数，返回值为 bool 值。通过类型签名，我们大致可以推断出函数的功能。~~
+举例说明，我们对一个数字列表 `[2, 3, 4]` 进行累加操作（初始值为 1 )，可以表示为:
+
+```js
+reduce((a, b) => a + b, 1, [2, 3, 4])
+```
+
+![reduce](./image/reduce.png)
 
 `reducer` 函数来模拟 `reduce` , `reducer` 的类型签名为 `reducer:: prevState -> action -> state`，接受上一次状态 prevState，和当前时刻 dispatch 过来的 action，生成当前的状态 state。当前的 state 又可以作为下一次迭代的状态参数传入。如下图所示：
 
-![redux](./redux.png)
+![redux](./image/redux.png)
 
 可以将 Redux 和 React 组合起来:
 
@@ -233,7 +251,7 @@ Redux 还将所有的事件都抽象为 action，无论是用户点击、ajax请
 
 Redux 还规范了事件流 -- 单向事件流，事件 `action` 只能由 `dispatch` 函数派发，并且只能通过 `reducer` 更新系统（网页）的状态 state，然后等待下一次事件。这种单向事件流机制能够进一步简化事件管理的复杂度，并且有较好的扩展性，可以在事件流动过程中插入 middleware，比如日志记录、thunk、异步处理等，进而大大增强事件处理的灵活性。
 
-![enhance-redux](enhance-redux.png)
+![enhance-redux](./image/enhance-redux.png)
 
 由于 react 组件本身也是纯函数，所以 react 对 `state` 可以进行缓存，如果 state 没有变化，就还用之前的网页，页面不需要重新渲染。（相当于页面缓存）
 

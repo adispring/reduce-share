@@ -6,4 +6,4 @@ const reduce = (reducer, initialValue, list) => {
     acc = reducer(acc, val);
   }
   return acc;
-}
+};
