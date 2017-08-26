@@ -148,6 +148,8 @@ View = f(Data)
 
 代码中的 `f` 函数，可以看作数据层到 View 层的映射或绑定。
 
+再例如，Redux 将 Model 层提取出来，抽象为只做状态管理的数据层。其中包括所有页面数据管理和逻辑处理。数据层内部又可以根据功能的不同细分为不同的部分（不同的reducer），然后通过 `combineReducers` 将多个 reducers 组合为一个大的 `reducer` 暴露给外部。
+
 分层设计有助于使程序更加强健，使我们更有可能在给定范围发生一些变化时，只需对程序做少量的修改。
 
 ## 流、状态、时间
@@ -178,11 +180,15 @@ View = f(Data)
 
 例如在前端开发中，一般会用对象模型（DOM）来模拟和直接操控网页，随着与用户不断交互，网页的局部状态不断被修改，其中的行为也会随时间不断变化。随着时间的推移，我们页面状态管理变得异常复杂，以至于最终我们自己也不知道网页当前的状态和行为。
 
-为了克服对象模型随时间变化带来状态管理困境，我们引入了 Redux，也就是上面提到的流处理模式，将页面状态 `state` 看作时间的函数 `state(t)`，因为状态的变化是离散的，所以我们也可以写成 `state(n)` 。通过提取 `state` 并显式地增加时间维度，我们将网页的对象模型转变为流处理模型，用 `state[]` 序列表示网页随着时间变化的状态。
+为了克服对象模型随时间变化带来状态管理困境，我们引入了 Redux，也就是上面提到的流处理模式，将页面状态 `state` 看作时间的函数 `state = state(t) -> state = stateF(t)`，因为状态的变化是离散的，所以我们也可以写成 `stateF(n)` 。通过提取 `state` 并显式地增加时间维度，我们将网页的对象模型转变为流处理模型，用 `state[]` 序列表示网页随着时间变化的状态。
 
 由于 `state` 可以看做整个时间轴上的无穷（具有延时）序列，并且我们在之前已经构造起了对序列进行操作的功能强大的抽象机制，所以可以利用这些序列操作函数处理 `state` 。
 
-Redux 提供了 `reducer` 函数来模拟 `reduce` , `reducer` 的类型签名为 `reducer:: prevState -> action -> state`，接受上一次状态 prevState，和当前时刻 dispatch 过来的 action，生成当前的状态 state。当前的 state 又可以作为下一次迭代的状态参数传入。如下图所示：
+Redux 提供了一整套机制来模拟 `reduce` 函数。
+
+首先我们来看一下 `reduce`, 其签名为 `reduce:: ((a, b) → a) → a → [b] → a`
+
+`reducer` 函数来模拟 `reduce` , `reducer` 的类型签名为 `reducer:: prevState -> action -> state`，接受上一次状态 prevState，和当前时刻 dispatch 过来的 action，生成当前的状态 state。当前的 state 又可以作为下一次迭代的状态参数传入。如下图所示：
 
 ![redux](./redux.png)
 
@@ -191,9 +197,14 @@ Redux 提供了 `reducer` 函数来模拟 `reduce` , `reducer` 的类型签名�
 ```js
 React-Redux： 
 
-View(t) = react(state(t)) = compose(react, state)(t)
+View = react(state)
 
--> View = compose(react, state)
+// 增加时间维度
+let state = stateF(t)
+
+-> View(t) = t => react(stateF(t)) = t => compose(react, stateF)(t) = compose(react, stateF)
+
+-> View = compose(react, stateF)
 ```
 
 这样从各个具体的 state 来看，state 是随着时间变化的；而从整个时间轴来看，state[] 是一个无穷序列，每个位置上都是以 t 为索引的固定值，没有变化；从 state(t) 角度看，state 是一个关于 t 的纯函数，也没有变化。将时间维度显式表示出来，有利于我们对系统的状态把控（如回溯、跟踪、分析、调试等）。
