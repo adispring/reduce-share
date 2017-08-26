@@ -193,7 +193,7 @@ View = f(Data)
 ```js
 reduce :: ((a, b) -> a) -> a -> [b] -> a
 
-reduce :: (reducer, initialValue list) -> result
+reduce :: (reducer, initialValue, list) -> result
 reducer :: (a, b) -> a
 initialValue :: a
 list :: [b]
@@ -235,8 +235,106 @@ reduce((a, b) => a + b, 1, [2, 3, 4])
 
 介绍完 `reduce` 的基本概念，接下来展示如何由 `reduce` 一步步推导出 Redux，以及 Redux 各部分与 `reduce` 的映射关系。
 
+首先定义出 Redux 的类型签名：
 
-`reducer` 函数来模拟 `reduce` , `reducer` 的类型签名为 `reducer:: prevState -> action -> state`，接受上一次状态 prevState，和当前时刻 dispatch 过来的 action，生成当前的状态 state。当前的 state 又可以作为下一次迭代的状态参数传入。如下图所示：
+```js
+redux :: ((state, action) -> state) -> initialState -> [action] -> state
+redux :: (reducer, initialState stream) -> result
+
+reducer :: (state, action) -> state
+initialState :: state
+list :: [action]
+result :: state
+```
+
+将 `reduce` 参数的名称变换一下，便得到 redux 的类型签名。从类型签名看，Redux 参数包含 `reducer` 函数，state 初始值 `initialState` ，和一个以 `action` 为元素的时间流列表 `stream :: [action]`；返回值为最终的状态 `state`。
+
+下面看一下 Redux 的初步实现：
+
+```js
+const redux = (reducer, initialState, stream) => {
+  let state = initialState;
+  let action;
+  for(i = 0, i < stream.length, i++) {
+    action = stream[i];
+    state = reducer(state, action);
+  }
+  return state;
+}
+```
+
+解析一下上述代码。
+
+首先设置 Redux `state` 的初始值 `initialState`， `stream` 代表时间流列表，`action = stream[i]` 代表某个时间点发生的一次 `action`；每次 `for` 循环，我们将当前的状态 `state` 和 `action` 传给 `reducer` 函数，根据本次 `action` 对当前 `state` 进行更新，产生新的 `state`。新的 `state` 作为下次 action 发生时的 `state` 参与状态更新。
+
+Redux 基本原理其实已经讲完了，Redux 的各个概念如：`reducer` 函数、`state`、 `stream :: [action]` 也是和 `reduce` 一一对应的。不同之处在于，redux 中的列表 `stream`，是一个随时间不断生成的无限长的 `action` 动作列表，而 `reduce` 中的列表是一个普通的 `list`。
+
+等一下，上述 Redux 实现貌似缺了些什么。。。是的，在 Redux 中，状态的改变和获取是通过两个函数来操作的：`dispatch`、`getState`。接下来我们将这两个函数添加进去：
+
+```js
+const redux = (reducer, initialState, stream) => {
+  let currentState = initialState;
+  let action;
+
+  const dispatch = action => {
+    currentState = reducer(currentState, action);
+  };
+  const getState = () => currentState;
+
+  for(i = 0, i < stream.length, i++) {
+    action = stream[i];
+    dispatch(action);
+  }
+  return state; // the end of the world :)
+}
+```
+
+这样我们就可以通过 `dispatch(action)` 来更新当前的状态了，通过 `getState` 也可以拿到当前的状态。
+
+但是还是感觉不太对？在上述实现中，`stream` 并不是现实中的时间（事件）流，只是普通的列表而已，`dispatch` 和 `getState` 接口也并没有暴露给外部，同时在 `redux` 最后还有一个 `return state` ，既然说过 `stream` 是一个无限长的列表，那 `return state` 貌似没有什么意义啊。
+
+好吧，上述两次 Redux 代码实现，其实都是对 Redux 原理的说明而已，下面我们来真正实现一个现实中可运行的最小 Redux 代码片段：
+
+```js
+const redux = (reducer, initialState) => {
+  let currentState = initialState;
+
+  const dispatch = action => {
+    currentState = reducer(currentState, action);
+  };
+  const getState = () => currentState;
+
+  return ({
+    dispatch,
+    getState,
+  };
+};
+
+const store = redux(reducer, initialState);
+const action = { type, payload };
+store.dispatch(action);
+store.getState();
+```
+
+Yes! 我们将 `stream` 从 redux 函数中抽离出来，或者说是从电脑屏幕上抽取到现实世界中来了。
+
+我们首先使用 `reducer` 和 `initialState` 初始化 redux 为 `store`,；然后现实中每次事件时，发生我们通过 `store.dispatch(action)` 更新 store 中状态，同时通过 `store.getState()` 来获取 `store` 的当前状态。
+
+等等，这怎么听着像是面向对象的编程方式，对象中包含私有变量：`currentState` 和操作私有变量的方法：`dispatch` 和 `getState`。
+
+```java
+const store = {
+  private currentState: initialState,
+  public dispatch: (action) => {...},
+  public getState: () => state,
+}
+```
+
+是的，从这个角度讲，我们确实是用了函数式的过程实现了一个面向对象的概念。
+
+如果你再仔细看的话，我们是用的闭包实现的这个对象，虽然最后的 `redux` 实现返回的是形式为 `{ dispatch, getState }`  `store` 对象，但 `dispatch` 和 `getState` 捕获了 `redux` 内部创建的 `currentState`，因此形成了闭包。
+
+Redux 的运作过程如下所示：
 
 ![redux](./image/redux.png)
 
