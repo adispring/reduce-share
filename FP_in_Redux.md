@@ -1,4 +1,4 @@
-# 函数式编程在 Redux 中的应用
+# 函数式编程在 Redux / React 中的应用
 
 关键字: 复杂度、抽象、组合、序列、流、时间
 
@@ -204,6 +204,10 @@ result :: a
 
 `reduce` 接受三个参数: 累积器 `reducer` ，累积初始值 `initialValue`，待累积列表 `list` 。我们迭代遍历列表的元素，利用累积器`reducer` 对累积值和列表当前元素进行累积操作，`reducer` 输出新累积值作为下次累积操作操作的输入。依次循环迭代，直到列表遍历结束，将此时的累积值作为 `reduce` 最终累积结果输出。
 
+`reduce` 在某些编程语言中也被称为 `foldl`。中文翻译有时也被称为折叠、归约等。如果将列表看做是一把展开的扇子，列表中的每个元素看做每根扇骨（上的内容），则 `reduce` 的过程也即扇子从左到右不断折叠（归约、累积）的过程。当扇子完全合上，一次折叠也即完成。当然，折叠顺序也可以从右向左进行，即为 `reduceRight` 或 `foldr`。
+
+![fan](./image/fan.jpg)
+
 `reduce` 代码实现如下：
 
 ```js
@@ -224,7 +228,13 @@ const reduce = (reducer, initialValue, list) => {
 reduce((a, b) => a + b, 1, [2, 3, 4])
 ```
 
+示意图如下所示：
+
 ![reduce](./image/reduce.png)
+
+
+介绍完 `reduce` 的基本概念，接下来展示如何由 `reduce` 一步步推导出 Redux，以及 Redux 各部分与 `reduce` 的映射关系。
+
 
 `reducer` 函数来模拟 `reduce` , `reducer` 的类型签名为 `reducer:: prevState -> action -> state`，接受上一次状态 prevState，和当前时刻 dispatch 过来的 action，生成当前的状态 state。当前的 state 又可以作为下一次迭代的状态参数传入。如下图所示：
 
