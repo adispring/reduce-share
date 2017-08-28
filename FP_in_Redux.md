@@ -360,7 +360,7 @@ let state = stateF(t)
 -> View = compose(react, stateF)
 ```
 
-![react_redux](react_redux.png)
+![react_redux](./image/react_redux.png)
 
 这样从各个具体的 state 来看，state 是随着时间变化的；而从整个时间轴来看，state[] 是一个无穷序列，每个位置上都是以 t 为索引的固定值，没有变化；从 state(t) 角度看，state 是一个关于 t 的纯函数，也没有变化。将时间维度显式表示出来，有利于我们对系统的状态把控（如回溯、跟踪、分析、调试等）。
 
