@@ -184,6 +184,7 @@ View = f(Data)
 
 由于 `state` 可以看做整个时间轴上的无穷（具有延时）序列，并且我们在之前已经构造起了对序列进行操作的功能强大的抽象机制，所以可以利用这些序列操作函数处理 `state` 。这里我们用到的是 `reduce` 操作。
 
+## 从 reduce 到 redux
 ### reduce
 
 `reduce` 是对列表的迭代操作的抽象，`map` 和 `filter` 都可以基于 `reduce` 进行实现。Redux 借鉴了 `reduce` 的思想，是 `reduce` 在时间流处理上的一种特殊应用，下面我们来看一下，Redux 是怎样 `reduce` 一步步推导出来的。
