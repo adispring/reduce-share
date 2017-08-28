@@ -341,7 +341,24 @@ Redux 的运作过程如下所示：
 
 ![redux](./image/redux.png)
 
-可以将 Redux 和 React 组合起来:
+我们来总结一下 `redux` 和 `reduce` 的联系与区别。
+
+相同点：
+
+- reduce 和 redux 都是对数据流进行 fold （折叠、归约）；
+
+- 两者都包含一个累积器(reducer)（(a, b) -> a VS (state, action) -> state ）和初始值（initialValue VS initialState ），两者都接受一个抽象意义上的列表（list VS stream ）。
+
+不同点：
+
+- reduce：接收一个有限长度的普通列表作为参数，对列表中的元素从前往后依次累积，并输出最终的累积结果。
+
+- redux：由于基于时间的事件流是一个无限长的抽象意义上的列表，我们无法显示地将事件流作为参数传给 redux，也无法返回最终的累积结果（由于时间流无限长）。所以我们将事件流抽离出来，通过 `dispatch` 主动地向 `reducer` 累积器 push 列表元素 `action`，通过 `getState` 观察当前的累积值（中间的累积过程）。
+
+- 从冷热信号的角度看，reduce 的输入相当于冷信号，累积器需要主动拉取（pull）输入列表中的元素进行累积，而 Redux 的输入（事件流）相当于热信号，需要外部主动调用 `dispatch(action)` 将当前元素 push 给累积器。
+### React
+
+Redux 可以用作 React 的数据管理（数据源），所以我们可以将 Redux 和 React 组合起来:
 
 ```js
 React-Redux： 
