@@ -343,6 +343,10 @@ Redux 的运作过程如下所示：
 
 - 从冷热信号的角度看，reduce 的输入相当于冷信号，累积器需要主动拉取（pull）输入列表中的元素进行累积，而 Redux 的输入（事件流）相当于热信号，需要外部主动调用 `dispatch(action)` 将当前元素 push 给累积器。
 
+由上可知，Redux 将所有的事件都抽象为 action，无论是用户点击、ajax请求还是页面刷新，只要有新的事件发生，我们就会 dispatch 一个 action 给 reducer，并结合上一次的状态计算出本次状态。统一的事件接口简化了处理事件的复杂度。
+
+Redux 规范还了事件流 -- 单向事件流，事件 `action` 只能由 `dispatch` 函数派发，并且只能通过 `reducer` 更新系统（网页）的状态 state，然后等待下一次事件。这种单向事件流机制能够进一步简化事件管理的复杂度，并且有较好的扩展性，可以在事件流动过程中插入 middleware，比如日志记录、thunk、异步处理等，进而大大增强事件处理的灵活性。
+
 ### React
 
 Redux 可以用作 React 的数据管理（数据源），所以我们可以将 Redux 和 React 组合起来:
@@ -363,10 +367,6 @@ let state = stateF(t)
 ![react_redux](./image/react_redux.png)
 
 这样从各个具体的 state 来看，state 是随着时间变化的；而从整个时间轴来看，state[] 是一个无穷序列，每个位置上都是以 t 为索引的固定值，没有变化；从 state(t) 角度看，state 是一个关于 t 的纯函数，也没有变化。将时间维度显式表示出来，有利于我们对系统的状态把控（如回溯、跟踪、分析、调试等）。
-
-Redux 将所有的事件都抽象为 action，无论是用户点击、ajax请求还是页面刷新，只要有新的事件发生，我们就会 dispatch 一个 action 给 reducer，并结合上一次的状态计算出本次状态。统一的事件接口简化了处理事件的复杂度。
-
-Redux 还规范了事件流 -- 单向事件流，事件 `action` 只能由 `dispatch` 函数派发，并且只能通过 `reducer` 更新系统（网页）的状态 state，然后等待下一次事件。这种单向事件流机制能够进一步简化事件管理的复杂度，并且有较好的扩展性，可以在事件流动过程中插入 middleware，比如日志记录、thunk、异步处理等，进而大大增强事件处理的灵活性。
 
 ![enhance_redux](./image/enhance_redux.png)
 
