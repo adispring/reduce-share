@@ -1,5 +1,5 @@
 reduce :: ((a, b) -> a) -> a -> [b] -> a
-reduce :: (reducer, initialValue list) -> result
+reduce :: (reducer, initialValue, list) -> result
 
 reducer :: (a, b) -> a
 initialValue :: a
