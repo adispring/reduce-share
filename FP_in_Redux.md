@@ -348,7 +348,7 @@ Redux 的运作过程如下所示：
 
 Redux 规范还了事件流 -- 单向事件流，事件 `action` 只能由 `dispatch` 函数派发，并且只能通过 `reducer` 更新系统（网页）的状态 state，然后等待下一次事件。这种单向事件流机制能够进一步简化事件管理的复杂度，并且有较好的扩展性，可以在事件流动过程中插入 middleware，比如日志记录、thunk、异步处理等，进而大大增强事件处理的灵活性。
 
-### transduce 和 enhance redux
+### transduce VS redux middleware
 
 `transduce` 作为增强版的 `reduce`，是在 [Clojure](https://clojure.org/reference/transducers) 中首次引入的。transduce 相当于 compose 和 reduce 的组合，相对于 reduce 改进之处为：列表中的每个元素在放入累积器之前，先对其进行一系列的处理。这样做的好处是同时降低的代码的时间复杂度和空间复杂度。
 
