@@ -106,7 +106,7 @@ const tasksInJuly = compose(
 - 可以由函数作为结果返回；
 - 可以包含在数据结构中；
 
-在 JavaScript 中，函数被看作是一等公民。
+幸运的是在 JavaScript 中，函数被看作是一等公民。
 
 ## 流
 
@@ -372,9 +372,9 @@ View = react(state)
 // 增加时间维度
 let state = stateF(t)
 
--> View(t) = t => react(stateF(t)) = t => compose(react, stateF)(t) = compose(react, stateF)
+--> View(t) = t => react(stateF(t)) = t => compose(react, stateF)(t) = compose(react, stateF)
 
--> View = compose(react, stateF)
+--> View = compose(react, stateF)
 ```
 
 ![react_redux](./image/react_redux.png)
