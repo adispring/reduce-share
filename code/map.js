@@ -1,17 +1,22 @@
+
 map :: Functor f => (a -> b) -> f a -> f b
 map :: (a -> b) -> [a] -> [b]
 
-const map = (f, xs) => xs.reduce((acc, item) => acc.append(f(item)))
+const map = (f, xs) =>
+  xs.reduce((acc, item) => acc.append(f(item)))
+
 const map = (f, xs) => xs.reduce((acc, item) => compose(append(__, acc), f)(item))
 
 // map
-var mapI = (fn, list) => {
-  var newList = [];
-  for (let i = 0; i < list.length; i++) {
-    newList[i] = fn(list[i]);
+
+const map = (f, xs) => {
+  var list = [];
+  for (let i = 0; i < xs.length; i++) {
+    list[i] = f(xs[i]);
   }
-  return newList;
+  return list;
 };
+
 expect(mapI(R.multiply(2), R.range(1, 5))).toEqual([2, 4, 6, 8]);
 
 var mapR = (fn, list) =>
@@ -34,7 +39,7 @@ var mapR4 = (fn, list) => R.unless(
 
 expect(mapR4(R.multiply(2), R.range(1, 5))).toEqual([2, 4, 6, 8]);
 
-var mapR5 = (fn, xs) => R.unless(
+const map = (fn, xs) => R.unless(
   R.isEmpty,
-  ([head, ...tail]) => [fn(head), ...mapR5(fn, tail)]
+  ([head, ...tail]) => [fn(head), ...map(fn, tail)]
 )(xs);

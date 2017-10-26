@@ -1,3 +1,4 @@
+/* eslint no-redeclare: 0 */
 const R = require('require');
 
 const reduce = (reducer, initialValue, list) => {
@@ -11,8 +12,9 @@ const reduce = (reducer, initialValue, list) => {
 };
 
 // reduce
-var reduceR = (fn, acc, list) =>
-  (R.isEmpty(list) ? acc : reduceR(fn, fn(acc, R.head(list)), R.tail(list)));
+
+const reduce = (fn, acc, list) =>
+  (R.isEmpty(list) ? acc : reduce(fn, fn(acc, R.head(list)), R.tail(list)));
 
 var reduceR2 = (fn, acc, list) => R.cond([
   [R.isEmpty, () => acc],
